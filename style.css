@@ -1,0 +1,125 @@
+
+    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    h1, h2 { color: #2c3e50; }
+    .card { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; background: #f9f9f9; }
+    .btn { background: #3498db; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-size: 1rem; border-radius: 4px; margin-right: 0.5rem; }
+    .btn:hover { background: #2980b9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .step { display: none; border-left: 4px solid #3498db; padding-left: 1rem; margin: 1rem 0; }
+    .step.active { display: block; animation: fadeIn 0.5s; }
+    .math { font-family: monospace; background: #eee; padding: 0.2rem 0.4rem; border-radius: 3px; font-weight: bold; }
+    .variable { color: #e74c3c; font-weight: bold; }
+    .success { color: #27ae60; font-weight: bold; }
+    .log-entry { margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+#randomS {
+    padding: 4px 8px;  
+    font-size: 12px;
+
+}
+
+#side-image {
+    position: fixed;
+    left: 20px;       /* Abstand zum linken Rand */
+    top: 50%;         /* In der Mitte der Höhe starten */
+    transform: translateY(-50%); /* Exakt vertikal zentrieren */
+    width: 225px;     /* Größe anpassen */
+    height: auto;
+    z-index: 1000;    /* Sicherstellen, dass es über anderem Inhalt liegt */
+}
+
+#side-image2 {
+    position: fixed;
+    right: 25px;       /* Abstand zum linken Rand */
+    top: 25%;         /* In der Mitte der Höhe starten */
+    transform: translateY(-50%); /* Exakt vertikal zentrieren */
+    width: 150px;     /* Größe anpassen */
+    height: auto;
+    z-index: 1000;    /* Sicherstellen, dass es über anderem Inhalt liegt */
+}
+
+/* Tooltip Container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    color: #3498db;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Der eigentliche Tooltip-Text (versteckt) */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    
+    /* Größe & Hintergrund */
+    width: 550px;
+    height: 320px;
+    background-image: url('gedankenwolke.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent; 
+
+    /* Text */
+    color: #000; 
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    
+    /* Innenabstand für den Text */
+    box-sizing: border-box; 
+    padding: 95px 160px 80px 160px; 
+    
+    /* --- POSITIONIERUNG --- */
+    position: fixed; 
+    z-index: 1001;
+    
+    /* Noch weiter nach LINKS (von 110px auf 85px) */
+    left: 85px; 
+    
+    /* Ein Stück RUNTER (von 15% auf 18%) */
+    top: 18%; 
+    
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: normal;
+}
+.tooltip .tooltiptext::after {
+    content: none;
+}
+
+/* Beim Hovern anzeigen */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+/* --- SPOTLIGHT EFFEKT --- */
+/* Erzeugt ein dunkles Overlay, wenn man das i-Icon hovert */
+.tooltip:hover::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;  /* Vollbild Breite */
+    height: 100vh; /* Vollbild Höhe */
+    
+    /* Der Lichtkegel: 
+       Zentrum bei ca. 250px von links und 35% von oben (zwischen A und Wolke).
+       Bis 300px Radius ist es komplett durchsichtig (hell).
+       Danach verläuft es weich ins Dunkle (60% Schwarz). */
+    background: radial-gradient(
+        circle at 220px 40%, 
+        transparent 0%, 
+        transparent 300px, 
+        rgba(0, 0, 0, 0.6) 400px
+    );
+    
+    /* WICHTIG: 
+       z-index 999 liegt ÜBER deiner Seite (Header, Karten etc.), 
+       aber UNTER Bild A (1000) und der Wolke (1001). */
+    z-index: 999; 
+    
+    /* Damit man nicht aus Versehen den Schatten "anklickt" */
+    pointer-events: none; 
+}

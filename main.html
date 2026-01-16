@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiat-Shamir Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <img src="A.png" id="side-image" alt="Deko Bild">
+    <img src="B.png" id="side-image2" alt="Deko Bild">
+
+    <h1>Fiat-Shamir Zero-Knowledge Proof</h1>
+    <p>A (Beweiser:in) möchte B (Prüfer:in) beweisen, dass sie ein Geheimnis <b>s</b> kennt, ohne es zu verraten.</p>
+
+    <div class="card" id="setupCard">
+        <h2>1. Setup (Geheimnis festlegen)</h2>
+        <p>Wähle öffentliche Zahlen und dein Geheimnis.</p>
+        <label for="PrimeP">Wähle Primzahl p:</label>
+
+        <select name="PrimeP" id="inputP">
+        <option value="None"> None</option>
+        <option value="5">5</option>
+        <option value="7">7</option>
+        <option value="11">11</option>
+        <option value="13">13</option>
+        <option value="15">15</option>
+        <option value="17">17</option>
+        </select>
+        <label for="PrimeQ">Wähle Primzahl q:</label>
+
+        <select name="PrimeQ" id="inputQ">
+        <option value="None"> None</option>
+        <option value="5">5</option>
+        <option value="7">7</option>
+        <option value="11">11</option>
+        <option value="13">13</option>
+        <option value="15">15</option>
+        <option value="17">17</option>
+        </select>
+        <br><br>
+        <label>Modulus (n): <input readonly type="number" id="inputN" value="35"></label>
+        <br><br>
+        <label>Zufälliges Geheimnis s: <button class="btn" type="button" id="randomS"> Generiere</button></label>
+         <span class="tooltip">ⓘ
+            <span class="tooltiptext">In echten Anwendungen werden die Primzahlen p und q deutlich größer gewählt damit es unmöglich wird aus n wieder p und q herauszufinden!</span>
+        </span>
+        <br><br>
+        <label>Geheimnis (s): <input type="number" id="inputS" value="4"></label> 
+        <span class="tooltip">ⓘ
+            <span class="tooltiptext">Das Geheimnis s muss kleiner als n sein, da alle Rechnungen im Modulo n stattfinden. Ein größeres s würde das gleiche Ergebnis wie (s mod n) liefern.</span>
+        </span>
+        <br><br>
+        <button class="btn" onclick="startSetup()">Setup initialisieren</button>
+        <div id="setupResult" style="margin-top: 1rem;"></div>
+    </div>
+
+    <div class="card" id="protocolCard" style="display:none;">
+        <h2>2. Der Beweis-Ablauf</h2>
+        
+        <div id="step1" class="step">
+            <h3>Schritt 1: Commitment (A)</h3>
+            <p>A wählt eine Zufallszahl <span class="math">r</span> und sendet <span class="math">x = r² mod n</span> an B.</p>
+            <button class="btn" onclick="runCommitment()">Generiere x senden</button>
+        </div>
+        <div id="resStep1" style="margin-bottom: 10px;"></div>
+
+        <div id="step2" class="step">
+            <h3>Schritt 2: Challenge (B)</h3>
+            <p>B (Du!) wählt zufällig eine Frage (Bit <span class="math">b</span>).</p>
+            <button class="btn" onclick="runChallenge(0)">Frage 0: Zeig mir r!</button>
+            <button class="btn" onclick="runChallenge(1)">Frage 1: Zeig mir den Beweis mit s!</button>
+        </div>
+        <div id="resStep2" style="margin-bottom: 10px;"></div>
+
+        <div id="step3" class="step">
+            <h3>Schritt 3: Antwort & Prüfung</h3>
+            <div id="verifyLog"></div>
+            <br>
+            <button class="btn" onclick="resetProof()">Neue Runde starten</button>
+        </div>
+    </div>
+
+<script src="script.js" defer></script>
+
+</body>
+</html>
