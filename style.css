@@ -1,5 +1,13 @@
 
-    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    body {
+    /* Vorher war max-width: 800px. Wir erhöhen das für das neue Layout */
+    max-width: 1200px; 
+    /* Den Rest deiner Body-Regeln beibehalten: */
+    font-family: sans-serif; 
+    margin: 2rem auto; 
+    padding: 0 1rem; 
+    line-height: 1.6;
+}
     h1, h2 { color: #2c3e50; }
     .card { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; background: #f9f9f9; }
     .btn { background: #3498db; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-size: 1rem; border-radius: 4px; margin-right: 0.5rem; }
@@ -122,4 +130,47 @@
     
     /* Damit man nicht aus Versehen den Schatten "anklickt" */
     pointer-events: none; 
+}
+/* 2. Der Container, der alles nebeneinander hält */
+.layout-container {
+    display: flex;
+    gap: 20px; /* Abstand zwischen Hauptteil und A4-Blatt */
+    align-items: flex-start; /* Beide fangen oben bündig an */
+}
+
+/* 3. Der Bereich für die bisherigen Cards (links) */
+.main-content {
+    flex: 1; /* Nimmt den verfügbaren Platz ein */
+    min-width: 0; /* Verhindert Layout-Bugs bei kleineren Screens */
+}
+
+/* 4. Das A4 Blatt (rechts) */
+.paper-sheet {
+    /* Fixe Breite, oder relativ */
+    width: 300px; 
+    /* DIN A4 Verhältnis ist 1 : 1.414 */
+    min-height: 425px; 
+    
+    background: #fff;
+    border: 1px solid #d3d3d3;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.1); /* Papierschatten */
+    padding: 2rem;
+    box-sizing: border-box;
+    
+    /* Optional: Leichte Rotation für "natürlichen" Look */
+    /* transform: rotate(1deg); */
+    
+    position: relative; /* Falls du Dinge darin absolut positionieren willst */
+    z-index: 50; /* Damit es nicht vom Spotlight überdeckt wird, falls gewünscht */
+}
+
+/* Responsive: Auf Handys untereinander rutschen */
+@media (max-width: 900px) {
+    .layout-container {
+        flex-direction: column;
+    }
+    .paper-sheet {
+        width: 100%;
+        min-height: 300px;
+    }
 }

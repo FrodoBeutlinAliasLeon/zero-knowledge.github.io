@@ -8,9 +8,11 @@ function updateN(){
         const q = parseInt(document.getElementById('inputQ').value);
         const n = q * p;
         document.getElementById('inputN').value = n;
+        document.getElementById('outputN').value = n;
     }
     else{
         document.getElementById('inputN').value = "35";
+        document.getElementById('outputN').value = "35";
     }
     
 }
@@ -20,13 +22,25 @@ document.getElementById("inputQ").addEventListener("change", updateN);
 
 document.addEventListener('DOMContentLoaded', (event) => {
     updateN();
+    updateS();
 });
 function updateS(){
     const n = parseInt(document.getElementById('inputN').value);
     const s = Math.floor(Math.random()* n)
     document.getElementById('inputS').value = s;
+    document.getElementById('outputS').value =s;
 }
 document.getElementById('randomS').addEventListener("click", updateS)
+function updateP(){
+    const p = parseInt(document.getElementById('inputP').value);
+    document.getElementById('outputP').value = p;
+}
+document.getElementById("inputP").addEventListener("change", updateP);
+function updateQ(){
+    const q = parseInt(document.getElementById('inputQ').value);
+    document.getElementById('outputQ').value = q;
+}
+document.getElementById("inputQ").addEventListener("change", updateQ);
 function startSetup() {
     n = parseInt(document.getElementById('inputN').value);
     s = parseInt(document.getElementById('inputS').value);
@@ -39,7 +53,7 @@ function startSetup() {
 
     document.getElementById('setupResult').innerHTML = 
         `<strong>Öffentliche Werte:</strong> n = <span class="variable">${n}</span>, v = <span class="variable">${v}</span><br>` +
-        `Wobei v = ${s}² mod ${n}<br>` +
+        `Wobei v = ${s}² mod ${n} =  <span class="variable">${v}</span><br>` +
         `<strong>A's Geheimnis:</strong> s = <span class="variable">${s}</span> (ist Privat, wird also nicht übertragen!)`;
     
     document.getElementById('protocolCard').style.display = 'block';
@@ -57,10 +71,14 @@ function runCommitment() {
     
     // A berechnet x = r^2 mod n
     x = (r * r) % n;
-
+    document.getElementById('outputR').value = r
+    document.getElementById('outputX').value = x
     document.getElementById('resStep1').innerHTML = 
         `A hat gewählt: <span class="math">r = ${r}</span> (geheim).<br>` +
-        `A sendet <span class="math">x = ${x}</span> an B.`;
+        
+        `A sendet <span class="math">x = ${x}</span> an B<br>`+
+        `Wobei <span class="math">x = r² mod n</span>.<br>`+
+        `Also <span class="math">  x = ${r}² mod ${n} <br>`;
     
     showStep(2);
 }
