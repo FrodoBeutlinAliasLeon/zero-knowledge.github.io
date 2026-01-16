@@ -1,53 +1,85 @@
-
-    body {
-    /* Vorher war max-width: 800px. Wir erhöhen das für das neue Layout */
-    max-width: 1200px; 
-    /* Den Rest deiner Body-Regeln beibehalten: */
+body {
+    max-width: 1100px; 
     font-family: sans-serif; 
     margin: 2rem auto; 
     padding: 0 1rem; 
     line-height: 1.6;
+    overflow-x: hidden; 
+    position: relative; 
 }
-    h1, h2 { color: #2c3e50; }
-    .card { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; background: #f9f9f9; }
-    .btn { background: #3498db; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-size: 1rem; border-radius: 4px; margin-right: 0.5rem; }
-    .btn:hover { background: #2980b9; }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .step { display: none; border-left: 4px solid #3498db; padding-left: 1rem; margin: 1rem 0; }
-    .step.active { display: block; animation: fadeIn 0.5s; }
-    .math { font-family: monospace; background: #eee; padding: 0.2rem 0.4rem; border-radius: 3px; font-weight: bold; }
-    .variable { color: #e74c3c; font-weight: bold; }
-    .success { color: #27ae60; font-weight: bold; }
-    .log-entry { margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+h1, h2 { color: #2c3e50; }
+
+/* .card muss relative sein, damit das absolute Bild darin weiß, wo oben rechts ist */
+.card { 
+    border: 1px solid #ddd; 
+    padding: 1.5rem; 
+    border-radius: 8px; 
+    margin-bottom: 1.5rem; 
+    background: #f9f9f9; 
+    position: relative; 
+    /* KEIN z-index hier, damit Tooltips darüber schweben können */
+}
+
+/* Platz schaffen für Bild B (rechts), damit Text nicht verdeckt wird */
+#setupCard h2 {
+    padding-right: 70px; 
+}
+
+/* Button Styling */
+.btn { 
+    background: #3498db; 
+    color: white; 
+    border: none; 
+    padding: 0.5rem 1rem; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    border-radius: 4px; 
+    margin-right: 0.5rem; 
+    margin-bottom: 0.5rem; 
+}
+.btn:hover { background: #2980b9; }
+.btn:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Steps */
+.step { display: none; border-left: 4px solid #3498db; padding-left: 1rem; margin: 1rem 0; }
+.step.active { display: block; animation: fadeIn 0.5s; }
+
+/* Math & Variablen */
+.math { font-family: monospace; background: #eee; padding: 0.2rem 0.4rem; border-radius: 3px; font-weight: bold; }
+.variable { color: #e74c3c; font-weight: bold; }
+.success { color: #27ae60; font-weight: bold; }
+.log-entry { margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     
-#randomS {
-    padding: 4px 8px;  
-    font-size: 12px;
+#randomS { padding: 4px 8px; font-size: 12px; }
 
-}
+/* --- BILDER POSITIONIERUNG --- */
 
+/* Bild A (Im Paper Sheet, Oben Rechts) */
 #side-image {
-    position: fixed;
-    left: 20px;       /* Abstand zum linken Rand */
-    top: 50%;         /* In der Mitte der Höhe starten */
-    transform: translateY(-50%); /* Exakt vertikal zentrieren */
-    width: 225px;     /* Größe anpassen */
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 100px;
     height: auto;
-    z-index: 1000;    /* Sicherstellen, dass es über anderem Inhalt liegt */
+    z-index: 5;
 }
 
+/* Bild B (Im Setup Card, Oben Rechts) */
 #side-image2 {
-    position: fixed;
-    right: 25px;       /* Abstand zum linken Rand */
-    top: 25%;         /* In der Mitte der Höhe starten */
-    transform: translateY(-50%); /* Exakt vertikal zentrieren */
-    width: 150px;     /* Größe anpassen */
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 100px; 
     height: auto;
-    z-index: 1000;    /* Sicherstellen, dass es über anderem Inhalt liegt */
+    z-index: 5;
 }
 
-/* Tooltip Container */
+/* =========================================
+   TOOLTIP / INFO POPUP
+   ========================================= */
 .tooltip {
     position: relative;
     display: inline-block;
@@ -55,122 +87,89 @@
     color: #3498db;
     font-weight: bold;
     margin-left: 5px;
+    z-index: 10;
 }
 
-/* Der eigentliche Tooltip-Text (versteckt) */
+/* Fix für Stacking Context: Hover holt das Element ganz nach oben */
+.tooltip:hover {
+    z-index: 10000;
+}
+
+/* Der Info-Kasten (zentriert) */
 .tooltip .tooltiptext {
     visibility: hidden;
-    
-    /* Größe & Hintergrund */
-    width: 550px;
-    height: 320px;
-    background-image: url('gedankenwolke.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-color: transparent; 
-
-    /* Text */
-    color: #000; 
-    text-align: center;
-    font-size: 0.9rem;
-    line-height: 1.3;
-    
-    /* Innenabstand für den Text */
-    box-sizing: border-box; 
-    padding: 95px 160px 80px 160px; 
-    
-    /* --- POSITIONIERUNG --- */
     position: fixed; 
-    z-index: 1001;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
     
-    /* Noch weiter nach LINKS (von 110px auf 85px) */
-    left: 85px; 
+    width: auto;
+    max-width: 600px;
     
-    /* Ein Stück RUNTER (von 15% auf 18%) */
-    top: 18%; 
+    background-color: #fff;
+    border: 2px solid #3498db;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
     
-    opacity: 0;
-    transition: opacity 0.3s;
+    padding: 2rem;
+    color: #333;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
     font-weight: normal;
-}
-.tooltip .tooltiptext::after {
-    content: none;
+
+    z-index: 9999; 
+    opacity: 0;
+    transition: opacity 0.2s ease, visibility 0.2s;
 }
 
-/* Beim Hovern anzeigen */
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-/* --- SPOTLIGHT EFFEKT --- */
-/* Erzeugt ein dunkles Overlay, wenn man das i-Icon hovert */
+.tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+/* Der Spotlight-Effekt (Hintergrund Abdunklung) */
 .tooltip:hover::before {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;  /* Vollbild Breite */
-    height: 100vh; /* Vollbild Höhe */
-    
-    /* Der Lichtkegel: 
-       Zentrum bei ca. 250px von links und 35% von oben (zwischen A und Wolke).
-       Bis 300px Radius ist es komplett durchsichtig (hell).
-       Danach verläuft es weich ins Dunkle (60% Schwarz). */
-    background: radial-gradient(
-        circle at 220px 40%, 
-        transparent 0%, 
-        transparent 300px, 
-        rgba(0, 0, 0, 0.6) 400px
-    );
-    
-    /* WICHTIG: 
-       z-index 999 liegt ÜBER deiner Seite (Header, Karten etc.), 
-       aber UNTER Bild A (1000) und der Wolke (1001). */
-    z-index: 999; 
-    
-    /* Damit man nicht aus Versehen den Schatten "anklickt" */
-    pointer-events: none; 
-}
-/* 2. Der Container, der alles nebeneinander hält */
-.layout-container {
-    display: flex;
-    gap: 20px; /* Abstand zwischen Hauptteil und A4-Blatt */
-    align-items: flex-start; /* Beide fangen oben bündig an */
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9998; 
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
 }
 
-/* 3. Der Bereich für die bisherigen Cards (links) */
-.main-content {
-    flex: 1; /* Nimmt den verfügbaren Platz ein */
-    min-width: 0; /* Verhindert Layout-Bugs bei kleineren Screens */
-}
+/* --- LAYOUT CONTAINER --- */
+.layout-container { display: flex; gap: 20px; align-items: flex-start; }
+.main-content { flex: 1; min-width: 0; }
 
-/* 4. Das A4 Blatt (rechts) */
 .paper-sheet {
-    /* Fixe Breite, oder relativ */
     width: 300px; 
-    /* DIN A4 Verhältnis ist 1 : 1.414 */
     min-height: 425px; 
-    
     background: #fff;
     border: 1px solid #d3d3d3;
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.1); /* Papierschatten */
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
     padding: 2rem;
     box-sizing: border-box;
-    
-    /* Optional: Leichte Rotation für "natürlichen" Look */
-    /* transform: rotate(1deg); */
-    
-    position: relative; /* Falls du Dinge darin absolut positionieren willst */
-    z-index: 50; /* Damit es nicht vom Spotlight überdeckt wird, falls gewünscht */
+    position: relative; /* Wichtig für Bild A */
 }
 
-/* Responsive: Auf Handys untereinander rutschen */
+.paper-content input { max-width: 100%; }
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+
 @media (max-width: 900px) {
-    .layout-container {
-        flex-direction: column;
+    .layout-container { flex-direction: column; }
+    .paper-sheet { width: 100%; min-height: auto; margin-top: 2rem; }
+
+    .tooltip .tooltiptext {
+        width: 90%; 
+        padding: 1.5rem;
     }
-    .paper-sheet {
-        width: 100%;
-        min-height: 300px;
-    }
+}
+
+@media (max-width: 500px) {
+    h1 { font-size: 1.5rem; }
+    .card { padding: 1rem; }
+    select, input[type="number"] { width: 100%; margin-bottom: 0.5rem; }
 }

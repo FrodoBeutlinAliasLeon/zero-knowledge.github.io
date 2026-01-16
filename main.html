@@ -6,8 +6,7 @@
     <title>Fiat-Shamir Demo</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<img src="A.png" id="side-image" alt="Deko Bild">
-    <img src="B.png" id="side-image2" alt="Deko Bild">
+<body>
 
     <h1>Fiat-Shamir Zero-Knowledge Proof</h1>
     <p>A (Beweiser:in) möchte B (Prüfer:in) beweisen, dass sie ein Geheimnis <b>s</b> kennt, ohne es zu verraten.</p>
@@ -17,28 +16,36 @@
         <div class="main-content">
             
             <div class="card" id="setupCard">
+                
+                <img src="B.png" id="side-image2" alt="Person B">
+
                 <h2>1. Setup (Geheimnis festlegen)</h2>
-                <label for="PrimeP">Wähle Primzahl p:</label>
-                <select name="PrimeP" id="inputP">
-                    <option value="None"> None</option>
-                    <option value="5">5</option>
-                    <option value="7">7</option>
-                    <option value="11">11</option>
-                    <option value="13">13</option>
-                    <option value="15">15</option>
-                    <option value="17">17</option>
-                </select>
-                <label for="PrimeQ">Wähle Primzahl q:</label>
-                <select name="PrimeQ" id="inputQ">
-                    <option value="None"> None</option>
-                    <option value="5">5</option>
-                    <option value="7">7</option>
-                    <option value="11">11</option>
-                    <option value="13">13</option>
-                    <option value="15">15</option>
-                    <option value="17">17</option>
-                </select>
-                <br><br>
+                
+                <div class="input-group">
+                    <label for="inputP">Wähle Primzahl p:</label>
+                    <select id="inputP">
+                        <option value="None"> None</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="11">11</option>
+                        <option value="13">13</option>
+                        <option value="15">15</option>
+                        <option value="17">17</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="inputQ">Wähle Primzahl q:</label>
+                    <select id="inputQ">
+                        <option value="None"> None</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="11">11</option>
+                        <option value="13">13</option>
+                        <option value="15">15</option>
+                        <option value="17">17</option>
+                    </select>
+                </div>
+                <br>
                 <label>Modulus (n): <input readonly type="number" id="inputN" value="35"></label>
                 <span class="tooltip">ⓘ
                     <span class="tooltiptext">In echten Anwendungen werden die Primzahlen p und q deutlich größer gewählt damit es unmöglich wird aus n wieder p und q herauszufinden!</span>
@@ -69,8 +76,10 @@
                 <div id="step2" class="step">
                     <h3>Schritt 2: Challenge (B)</h3>
                     <p>B (Du!) wählt zufällig eine Frage (Bit <span class="math">b</span>).</p>
-                    <button class="btn" onclick="runChallenge(0)">Frage 0: Zeig mir r!</button>
-                    <button class="btn" onclick="runChallenge(1)">Frage 1: Zeig mir den Beweis mit s!</button>
+                    <div class="btn-group">
+                        <button class="btn" onclick="runChallenge(0)">Frage 0: Zeig mir r!</button>
+                        <button class="btn" onclick="runChallenge(1)">Frage 1: Zeig mir den Beweis mit s!</button>
+                    </div>
                 </div>
                 <div id="resStep2" style="margin-bottom: 10px;"></div>
 
@@ -82,9 +91,12 @@
                 </div>
             </div>
 
-        </div> <div class="paper-sheet" id="notesSheet">
+        </div> 
+        
+        <div class="paper-sheet" id="notesSheet">
+             <img src="A.png" id="side-image" alt="Person A">
             <h3>Werte</h3>
-            <p style="font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; color: #333;" >
+            <div class="paper-content">
                 <label>Primzahl p: <input readonly type="number" id="outputP" value=""></label>
                 <br><br>
                 <label>Primzahl q: <input readonly type="number" id="outputQ" value=""></label>
@@ -97,13 +109,14 @@
                 <br><br>
                 <label>Öffentliches x: <input readonly type="number" id="outputX" value=""></label>
                 <br><br>
-            </p>
+            </div>
             <hr>
             <div id="sideLog">
                 <em></em>
             </div>
         </div>
 
-    </div> <script src="script.js" defer></script>
+    </div> 
+    <script src="script.js" defer></script>
 </body>
 </html>
