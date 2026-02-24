@@ -67,6 +67,11 @@ function chooseMode(isHonest) {
     document.getElementById('setupCard').style.display = 'block';
 }
 
+function gcd(a, b) {
+    while (b) { [a, b] = [b, a % b]; }
+    return a;
+}
+
 function modInverse(a, m) {
     // Extended Euclidean Algorithm
     a = ((a % m) + m) % m;
@@ -86,6 +91,7 @@ function startSetup() {
     s = parseInt(document.getElementById('inputS').value);
 
     if (s >= n) { alert("Das Geheimnis s muss kleiner als der Modulus n sein!"); return; }
+    if (gcd(s, n) !== 1) { alert("s muss teilerfremd zu n sein! Wähle ein s, das kein Vielfaches von p oder q ist."); return; }
 
     v = (s * s) % n;
 
