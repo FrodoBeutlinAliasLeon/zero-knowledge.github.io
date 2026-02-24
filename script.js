@@ -232,16 +232,20 @@ function runResponseAndVerify() {
         explanation = `Da ${O('b')}=0, sendet A einfach ihre Zufallszahl <span class="math">${O('y')} = ${P('r')}</span>.`;
         let ySq = (y * y);
         let check = ySq % n;
-        calcCheck = `Prüfung: ${O(y)}² mod ${O(n)} = ${ySq} mod ${O(n)} = <strong>${check}</strong>. <br>Erwartet war ${O('x')} = <strong>${O(x)}</strong>.`;
+        calcCheck = `<strong>Allgemeine Formel:</strong> B prüft, ob <span class="math">${O('y')}² ≡ ${O('x')} (mod ${O('n')})</span><br><br>` +
+                    `<strong>Einsetzen:</strong><br>` +
+                    `Links: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = ${ySq} mod ${O(n)} = <strong>${check}</strong><br>` +
+                    `Rechts: ${O('x')} = <strong>${O(x)}</strong>`;
         passed = (check === x);
     } else {
         y = (r * s) % n;
-        explanation = `Da ${O('b')}=1, sendet A <span class="math">${O('y')} = ${P('r')} · ${P('s')} mod ${O('n')}</span>.`;
+        explanation = `Da ${O('b')}=1, sendet A <span class="math">${O('y')} = ${P('r')} · ${P('s')} mod ${O('n')} = ${P(r)} · ${P(s)} mod ${O(n)} = ${O(y)}</span>.`;
         let leftSideVal = (y * y) % n;
         let rightSideVal = (x * v) % n;
-        calcCheck = `Prüfung (${O('y')}² ≡ ${O('x')}·${O('v')}):<br>` +
-                    `Links: ${O(y)}² mod ${O(n)} = <strong>${leftSideVal}</strong><br>` +
-                    `Rechts: ${O(x)} · ${O(v)} mod ${O(n)} = ${x*v} mod ${O(n)} = <strong>${rightSideVal}</strong>`;
+        calcCheck = `<strong>Allgemeine Formel:</strong> B prüft, ob <span class="math">${O('y')}² ≡ ${O('x')} · ${O('v')} (mod ${O('n')})</span><br><br>` +
+                    `<strong>Einsetzen:</strong><br>` +
+                    `Links: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = <strong>${leftSideVal}</strong><br>` +
+                    `Rechts: ${O('x')} · ${O('v')} mod ${O('n')} = ${O(x)} · ${O(v)} mod ${O(n)} = ${x*v} mod ${O(n)} = <strong>${rightSideVal}</strong>`;
         passed = (leftSideVal === rightSideVal);
     }
 
