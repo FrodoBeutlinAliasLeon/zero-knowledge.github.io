@@ -1,84 +1,218 @@
+/* =========================================
+   BASE STYLES & TYPOGRAPHY
+   ========================================= */
+:root {
+    --primary: #4a90d9;
+    --primary-dark: #3572b0;
+    --danger: #d9534f;
+    --danger-dark: #c9302c;
+    --success: #27ae60;
+    --success-light: #eafaf1;
+    --fail: #e74c3c;
+    --fail-light: #fdedec;
+    --text: #2c3e50;
+    --text-light: #5a6c7d;
+    --bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --card-border: #e1e8ed;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+    --radius: 10px;
+    --transition: 0.3s ease;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    max-width: 1100px; 
-    font-family: sans-serif; 
-    margin: 2rem auto; 
-    padding: 0 1rem; 
-    line-height: 1.6;
-    overflow-x: hidden; 
-    position: relative; 
+    max-width: 1150px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    line-height: 1.7;
+    overflow-x: hidden;
+    position: relative;
+    background: var(--bg);
+    color: var(--text);
 }
 
-h1, h2 { color: #2c3e50; }
-
-/* .card muss relative sein, damit das absolute Bild darin weiß, wo oben rechts ist */
-.card { 
-    border: 1px solid #ddd; 
-    padding: 1.5rem; 
-    border-radius: 8px; 
-    margin-bottom: 1.5rem; 
-    background: #f9f9f9; 
-    position: relative; 
-    /* KEIN z-index hier, damit Tooltips darüber schweben können */
+h1 {
+    color: var(--text);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
 }
 
-/* Platz schaffen für Bild B (rechts), damit Text nicht verdeckt wird */
-#setupCard h2 {
-    padding-right: 70px; 
+h2 {
+    color: var(--text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 0;
 }
 
-/* Button Styling */
-.btn { 
-    background: #3498db; 
-    color: white; 
-    border: none; 
-    padding: 0.5rem 1rem; 
-    cursor: pointer; 
-    font-size: 1rem; 
-    border-radius: 4px; 
-    margin-right: 0.5rem; 
-    margin-bottom: 0.5rem; 
+p { color: var(--text-light); }
+
+/* =========================================
+   PROGRESS INDICATOR
+   ========================================= */
+.progress-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
 }
-.btn:hover { background: #2980b9; }
-.btn-danger { background: #e74c3c; }
-.btn-danger:hover { background: #c0392b; }
-.btn:disabled { background: #ccc; cursor: not-allowed; }
 
-/* Steps */
-.step { display: none; border-left: 4px solid #3498db; padding-left: 1rem; margin: 1rem 0; position: relative; }
-.step.active { display: block; animation: fadeIn 0.5s; }
+.progress-step {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-light);
+    background: var(--card-bg);
+    border-bottom: 3px solid transparent;
+    transition: all var(--transition);
+    opacity: 0.5;
+}
 
+.progress-step.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    opacity: 1;
+}
+
+.progress-step.done {
+    color: var(--success);
+    border-bottom-color: var(--success);
+    opacity: 0.8;
+}
+
+.progress-step .step-num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 50%;
+    background: #dde4ea;
+    color: white;
+    font-size: 0.75rem;
+    margin-right: 0.4rem;
+    transition: all var(--transition);
+}
+
+.progress-step.active .step-num { background: var(--primary); }
+.progress-step.done .step-num { background: var(--success); }
+
+/* =========================================
+   CARDS
+   ========================================= */
+.card {
+    border: 1px solid var(--card-border);
+    padding: 1.75rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.25rem;
+    background: var(--card-bg);
+    position: relative;
+    box-shadow: var(--shadow);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card.card-enter {
+    animation: cardSlideIn 0.4s ease forwards;
+}
+
+@keyframes cardSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#setupCard h2 { padding-right: 70px; }
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+.btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn-danger { background: var(--danger); }
+.btn-danger:hover { background: var(--danger-dark); }
+
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.btn-group .btn { margin: 0; }
+
+#randomS { padding: 4px 10px; font-size: 12px; }
+
+/* =========================================
+   FORM ELEMENTS
+   ========================================= */
+.input-group {
+    margin-bottom: 0.75rem;
+}
+
+.input-group label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+select, input[type="number"], input[type="text"] {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--card-border);
+    border-radius: 5px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.15);
+}
+
+/* Inline error messages */
+.inline-error {
+    color: var(--danger);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.inline-error.visible { display: block; }
+
+/* =========================================
+   STEP IMAGES
+   ========================================= */
 .step-image { width: 90px; height: auto; float: right; margin: 0 0 0.5rem 0.5rem; }
 
-/* Math & Variablen */
-.math { font-family: monospace; background: #eee; padding: 0.2rem 0.4rem; border-radius: 3px; font-weight: bold; }
-.variable { color: #e74c3c; font-weight: bold; }
-.success { color: #27ae60; font-weight: bold; }
-
-/* Variablen-Farbcodierung: privat = rot, öffentlich = grün */
-.vp { color: #e74c3c; font-weight: bold; }
-.vo { color: #27ae60; font-weight: bold; }
-
-.value-public { color: #27ae60; font-weight: bold; }
-.value-private { color: #e74c3c; font-weight: bold; }
-
-.value-group {
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-    background: #fafafa;
-    box-sizing: border-box;
-}
-.log-entry { margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    
-#randomS { padding: 4px 8px; font-size: 12px; }
-
-/* --- BILDER POSITIONIERUNG --- */
-
-/* Bild A (Im Paper Sheet, Oben Rechts) */
 #side-image {
     position: absolute;
     top: 10px;
@@ -88,15 +222,52 @@ h1, h2 { color: #2c3e50; }
     z-index: 5;
 }
 
-/* Bild B (Im Setup Card, Oben Rechts) */
 #side-image2 {
     position: absolute;
     top: 15px;
     right: 15px;
-    width: 160px;
+    width: 140px;
     height: auto;
     z-index: 5;
 }
+
+/* =========================================
+   MATH & VARIABLES
+   ========================================= */
+.math {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: #eef2f7;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.variable { color: var(--fail); font-weight: bold; }
+.success  { color: var(--success); font-weight: bold; }
+
+.vp { color: #c0392b; font-weight: bold; }
+.vo { color: #1e8449; font-weight: bold; }
+
+.value-public  { color: #1e8449; font-weight: bold; }
+.value-private { color: #c0392b; font-weight: bold; }
+
+.value-group {
+    width: 100%;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    background: #fafbfc;
+}
+
+.log-entry {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* =========================================
    TOOLTIP / INFO POPUP
@@ -105,96 +276,143 @@ h1, h2 { color: #2c3e50; }
     position: relative;
     display: inline-block;
     cursor: help;
-    color: #3498db;
+    color: var(--primary);
     font-weight: bold;
     margin-left: 5px;
     z-index: 10;
 }
 
-/* Fix für Stacking Context: Hover holt das Element ganz nach oben */
-.tooltip:hover {
-    z-index: 10000;
-}
+.tooltip:hover { z-index: 10000; }
 
-/* Der Info-Kasten (zentriert) */
 .tooltip .tooltiptext {
     visibility: hidden;
-    position: fixed; 
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); 
-    
+    transform: translate(-50%, -50%);
     width: auto;
     max-width: 600px;
-    
     background-color: #fff;
-    border: 2px solid #3498db;
+    border: 2px solid var(--primary);
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
-    
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
     padding: 2rem;
     color: #333;
     text-align: left;
     font-size: 1rem;
     line-height: 1.5;
     font-weight: normal;
-
-    z-index: 9999; 
+    z-index: 9999;
     opacity: 0;
     transition: opacity 0.2s ease, visibility 0.2s;
 }
 
 .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
-/* Der Spotlight-Effekt (Hintergrund Abdunklung) */
 .tooltip:hover::before {
     content: "";
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9998; 
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9998;
     pointer-events: none;
     animation: fadeIn 0.2s ease;
 }
 
-/* --- SIDE BY SIDE (Lügner-Modus) --- */
-.side-by-side {
-    display: flex;
-    gap: 1rem;
-}
+/* =========================================
+   SIDE BY SIDE (Lying mode)
+   ========================================= */
+.side-by-side { display: flex; gap: 1rem; }
+
 .side-col {
     flex: 1;
     border: 2px solid #ddd;
-    border-radius: 8px;
+    border-radius: var(--radius);
     padding: 1rem;
     background: #fff;
+    transition: all var(--transition);
 }
+
 .side-col.col-success {
-    border-color: #27ae60;
-    background: #eafaf1;
+    border-color: var(--success);
+    background: var(--success-light);
 }
+
 .side-col.col-fail {
-    border-color: #e74c3c;
-    background: #fdedec;
+    border-color: var(--fail);
+    background: var(--fail-light);
 }
 
 @media (max-width: 600px) {
     .side-by-side { flex-direction: column; }
 }
 
-/* --- LAYOUT CONTAINER --- */
+/* =========================================
+   ROUND COUNTER / PROBABILITY
+   ========================================= */
+.round-counter {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+    display: none;
+}
+
+.round-counter.visible { display: block; }
+
+.round-counter h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.round-info {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+
+.prob-bar-container {
+    width: 100%;
+    height: 24px;
+    background: #e8ecf1;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.prob-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger), #f39c12);
+    border-radius: 12px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+}
+
+.prob-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    text-align: right;
+}
+
+/* =========================================
+   LAYOUT CONTAINER
+   ========================================= */
 .layout-container { display: flex; gap: 20px; align-items: flex-start; }
 .main-content { flex: 1; min-width: 0; }
 
 .paper-sheet {
     width: 300px;
     min-height: 425px;
-    background: #fff;
-    border: 1px solid #d3d3d3;
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
-    padding: 2rem;
-    box-sizing: border-box;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow);
+    padding: 1.75rem;
+    border-radius: var(--radius);
     position: sticky;
     top: 1rem;
     align-self: flex-start;
@@ -203,21 +421,233 @@ h1, h2 { color: #2c3e50; }
 .paper-content input { max-width: 100%; }
 
 /* =========================================
+   NAVIGATION LINK
+   ========================================= */
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.nav-link:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* =========================================
+   FACTORING PAGE SPECIFIC
+   ========================================= */
+.slider-container {
+    margin: 1.5rem 0;
+}
+
+.slider-container label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.bit-slider {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e1e8ed;
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.bit-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.bit-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.bit-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0.5rem 0;
+}
+
+.result-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.result-card h3 { margin-top: 0; }
+
+.time-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--danger);
+    margin: 0.75rem 0;
+}
+
+.time-display.safe { color: var(--success); }
+
+.comparison-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-left: 3px solid var(--primary);
+}
+
+.comparison-icon {
+    font-size: 1.5rem;
+    min-width: 2rem;
+    text-align: center;
+}
+
+.n-display {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    word-break: break-all;
+    background: #f0f3f7;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin: 0.75rem 0;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.4;
+}
+
+.danger-meter {
+    height: 12px;
+    border-radius: 6px;
+    background: #e8ecf1;
+    overflow: hidden;
+    margin: 0.75rem 0;
+}
+
+.danger-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.8s ease, background 0.8s ease;
+}
+
+/* =========================================
+   QUANTUM TOGGLE & STYLES
+   ========================================= */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #ccd5de;
+    border-radius: 26px;
+    transition: all 0.3s;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(24px);
+}
+
+.quantum-badge {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    animation: quantumPulse 2s ease-in-out infinite;
+}
+
+@keyframes quantumPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(124, 58, 237, 0.6); }
+}
+
+.quantum-info {
+    background: linear-gradient(135deg, #f5f0ff, #ede5ff);
+    border: 1px solid #d8b4fe;
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.time-display.quantum-time {
+    color: #7c3aed;
+}
+
+/* =========================================
    RESPONSIVE DESIGN
    ========================================= */
-
 @media (max-width: 900px) {
     .layout-container { flex-direction: column; }
     .paper-sheet { width: 100%; min-height: auto; margin-top: 2rem; position: relative; top: auto; }
-
-    .tooltip .tooltiptext {
-        width: 90%; 
-        padding: 1.5rem;
-    }
+    .tooltip .tooltiptext { width: 90%; padding: 1.5rem; }
+    .progress-steps { flex-wrap: wrap; }
+    .progress-step { flex-basis: 50%; }
 }
 
 @media (max-width: 500px) {
-    h1 { font-size: 1.5rem; }
+    h1 { font-size: 1.4rem; }
     .card { padding: 1rem; }
     select, input[type="number"] { width: 100%; margin-bottom: 0.5rem; }
+    .progress-step { flex-basis: 100%; }
 }

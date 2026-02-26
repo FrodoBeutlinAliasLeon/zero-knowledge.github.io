@@ -10,24 +10,170 @@ let honest = true;
 let guessedB = null;
 let preparedY = null;
 
-function updateN(){
-    if (document.getElementById('inputP').value !='None' && document.getElementById('inputQ').value != 'None'){
-        const p = parseInt(document.getElementById('inputP').value);
-        const q = parseInt(document.getElementById('inputQ').value);
-        const n = q * p;
-        document.getElementById('inputN').value = n;
+// Runden-Counter für Lügen-Modus
+let roundCount = 0;
+
+// --- Hilfsfunktionen ---
+
+function gcd(a, b) {
+    while (b) { [a, b] = [b, a % b]; }
+    return a;
+}
+
+function modInverse(a, m) {
+    a = ((a % m) + m) % m;
+    let [old_r, r_val] = [a, m];
+    let [old_s, s_val] = [1, 0];
+    while (r_val !== 0) {
+        const q = Math.floor(old_r / r_val);
+        [old_r, r_val] = [r_val, old_r - q * r_val];
+        [old_s, s_val] = [s_val, old_s - q * s_val];
     }
-    else{
-        document.getElementById('inputN').value = "35";
+    if (old_r !== 1) return null;
+    return ((old_s % m) + m) % m;
+}
+
+function showInlineError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.toggle('visible', !!msg);
+}
+
+function clearAllErrors() {
+    document.querySelectorAll('.inline-error').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('visible');
+    });
+}
+
+// --- Progress Indicator ---
+
+function updateProgress(activeStep) {
+    document.querySelectorAll('.progress-step').forEach(el => {
+        const step = parseInt(el.dataset.step);
+        el.classList.remove('active', 'done');
+        if (step < activeStep) el.classList.add('done');
+        else if (step === activeStep) el.classList.add('active');
+    });
+}
+
+// --- Smooth card reveal ---
+
+function showCard(id) {
+    const card = document.getElementById(id);
+    card.style.display = 'block';
+    card.classList.remove('card-enter');
+    // Trigger reflow
+    void card.offsetWidth;
+    card.classList.add('card-enter');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// --- Round Counter ---
+
+function updateRoundCounter() {
+    const el = document.getElementById('roundCounter');
+    if (!honest && roundCount > 0) {
+        el.classList.add('visible');
+        const prob = Math.pow(0.5, roundCount);
+        const pct = (prob * 100);
+        const fracDenom = Math.pow(2, roundCount);
+        document.getElementById('roundInfo').innerHTML =
+            `Runde <strong>${roundCount}</strong>: Wahrscheinlichkeit richtig zu raten: <strong>1/${fracDenom} = ${pct.toFixed(pct < 1 ? 2 : 1)}%</strong>`;
+        document.getElementById('probBar').style.width = Math.max(pct, 0.5) + '%';
+        document.getElementById('probLabel').textContent =
+            `Ratewahrscheinlichkeit: ${pct.toFixed(pct < 1 ? 2 : 1)}%`;
+    } else {
+        el.classList.remove('visible');
     }
 }
 
-document.getElementById("inputP").addEventListener("change", updateN);
+// --- p/q Dropdown-Logik ---
+
+const allPrimes = [5, 7, 11, 13, 17, 19, 23, 29, 31];
+
+function updateN() {
+    const pVal = document.getElementById('inputP').value;
+    const qVal = document.getElementById('inputQ').value;
+
+    clearAllErrors();
+
+    if (pVal !== 'None' && qVal !== 'None') {
+        const p = parseInt(pVal);
+        const q = parseInt(qVal);
+        if (p === q) {
+            showInlineError('errorQ', 'p und q müssen verschieden sein!');
+            document.getElementById('inputN').value = '';
+            populateSDropdown(null);
+            return;
+        }
+        const nVal = p * q;
+        document.getElementById('inputN').value = nVal;
+        populateSDropdown(nVal);
+    } else {
+        document.getElementById('inputN').value = '';
+        populateSDropdown(null);
+    }
+}
+
+function filterQOptions() {
+    const pVal = document.getElementById('inputP').value;
+    const qSelect = document.getElementById('inputQ');
+    const currentQ = qSelect.value;
+
+    Array.from(qSelect.options).forEach(opt => {
+        if (opt.value === 'None') return;
+        opt.disabled = (opt.value === pVal);
+        opt.style.color = (opt.value === pVal) ? '#ccc' : '';
+    });
+
+    if (currentQ === pVal) {
+        qSelect.value = 'None';
+    }
+}
+
+function populateSDropdown(nVal) {
+    const sel = document.getElementById('inputS');
+    sel.innerHTML = '';
+
+    if (!nVal || nVal <= 1) {
+        sel.innerHTML = '<option value="None">— wähle zuerst p und q —</option>';
+        return;
+    }
+
+    const validValues = [];
+    for (let i = 2; i < nVal; i++) {
+        if (gcd(i, nVal) === 1) {
+            validValues.push(i);
+        }
+    }
+
+    if (validValues.length === 0) {
+        sel.innerHTML = '<option value="None">— keine gültigen Werte —</option>';
+        return;
+    }
+
+    validValues.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        sel.appendChild(opt);
+    });
+
+    // Zufälligen Wert vorauswählen
+    const randIdx = Math.floor(Math.random() * validValues.length);
+    sel.value = validValues[randIdx];
+}
+
+// Event Listeners
+document.getElementById("inputP").addEventListener("change", () => {
+    filterQOptions();
+    updateN();
+});
 document.getElementById("inputQ").addEventListener("change", updateN);
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
     updateN();
-    updateS();
     // Werte-Kasten leer starten
     document.getElementById('outputP').value = '';
     document.getElementById('outputQ').value = '';
@@ -38,68 +184,109 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('outputX').value = '';
 });
 
-function updateS(){
-    const n = parseInt(document.getElementById('inputN').value);
-    if(!n) return;
-    const s = Math.floor(Math.random()* n)
-    document.getElementById('inputS').value = s;
-}
-document.getElementById('randomS').addEventListener("click", updateS)
-
-function updateP(){
-    const p = parseInt(document.getElementById('inputP').value);
-}
-document.getElementById("inputP").addEventListener("change", updateP);
-
-function updateQ(){
-    const q = parseInt(document.getElementById('inputQ').value);
-}
-document.getElementById("inputQ").addEventListener("change", updateQ);
+// --- Modus ---
 
 function chooseMode(isHonest) {
     honest = isHonest;
+    roundCount = 0;
+    updateRoundCounter();
+
     document.getElementById('modeResult').innerHTML = honest
         ? `<span class="success">Modus: A sagt die Wahrheit (kennt ${P('s')})</span>`
-        : `<span style="color:red;font-weight:bold;">Modus: A lügt (kennt ${P('s')} nicht, muss raten!)</span>`;
+        : `<span style="color:var(--danger);font-weight:bold;">Modus: A lügt (kennt ${P('s')} nicht, muss raten!)</span>`;
+
     const aSrc = honest ? 'A.png' : 'A-lügt.png';
     document.getElementById('side-image2').src = aSrc;
     document.querySelector('#commitmentCard .step-image').src = aSrc;
-    document.getElementById('setupCard').style.display = 'block';
-}
 
-function gcd(a, b) {
-    while (b) { [a, b] = [b, a % b]; }
-    return a;
-}
+    // Alles ab Commitment zurücksetzen
+    document.getElementById('resStep1').innerHTML = '';
+    document.getElementById('resStep2').innerHTML = '';
+    document.getElementById('verifyLog').innerHTML = '';
+    document.getElementById('verifyLogB0').innerHTML = '';
+    document.getElementById('verifyLogB1').innerHTML = '';
+    document.getElementById('commitmentCard').style.display = 'none';
+    document.getElementById('challengeCard').style.display = 'none';
+    document.getElementById('verifyCard').style.display = 'none';
+    document.getElementById('outputR').value = '';
+    document.getElementById('outputX').value = '';
+    guessedB = null;
+    preparedY = null;
 
-function modInverse(a, m) {
-    // Extended Euclidean Algorithm
-    a = ((a % m) + m) % m;
-    let [old_r, r_val] = [a, m];
-    let [old_s, s_val] = [1, 0];
-    while (r_val !== 0) {
-        const q = Math.floor(old_r / r_val);
-        [old_r, r_val] = [r_val, old_r - q * r_val];
-        [old_s, s_val] = [s_val, old_s - q * s_val];
+    // Wenn Setup bereits durchlaufen wurde (n existiert), Setup-Ergebnis anpassen
+    if (n && v !== undefined) {
+        document.getElementById('outputS').value = honest ? s : '? (unbekannt)';
+        // setupResult und Commitment-UI neu aufbauen
+        let sSq = s * s;
+        if (honest) {
+            document.getElementById('setupResult').innerHTML =
+                `<strong>Öffentliche Werte:</strong> ${O('n')} = ${n}, ${O('v')} = ${v}<br>` +
+                `Wobei ${O('v')} = ${P('s')}² mod ${O('n')}<br>` +
+                `${O('v')} = ${P(s)}² mod ${O(n)} = ${sSq} mod ${O(n)} = ${O(v)}<br>` +
+                `<strong>A's Geheimnis:</strong> ${P('s')} = ${P(s)} (ist Privat, wird also nicht übertragen!)`;
+            document.getElementById('commitmentHonest').style.display = 'block';
+            document.getElementById('commitmentLying').style.display = 'none';
+        } else {
+            document.getElementById('setupResult').innerHTML =
+                `<strong>Öffentliche Werte:</strong> ${O('n')} = ${n}, ${O('v')} = ${v}<br>` +
+                `Wobei ${O('v')} = ${P('s')}² mod ${O('n')}<br>` +
+                `${O('v')} = ${P(s)}² mod ${O(n)} = ${sSq} mod ${O(n)} = ${O(v)}<br>` +
+                `<span style="color:var(--danger);font-weight:bold;">A kennt ${P('s')} nicht! A muss im nächsten Schritt raten.</span>`;
+            document.getElementById('commitmentHonest').style.display = 'none';
+            document.getElementById('commitmentLying').style.display = 'block';
+        }
+        updateProgress(2);
+        showCard('commitmentCard');
+    } else {
+        updateProgress(1);
     }
-    if (old_r !== 1) return null; // no inverse
-    return ((old_s % m) + m) % m;
+
+    showCard('setupCard');
 }
+
+// --- Setup ---
 
 function startSetup() {
-    n = parseInt(document.getElementById('inputN').value);
-    s = parseInt(document.getElementById('inputS').value);
+    clearAllErrors();
 
-    if (s >= n) { alert("Das Geheimnis s muss kleiner als der Modulus n sein!"); return; }
-    if (gcd(s, n) !== 1) { alert("s muss teilerfremd zu n sein! Wähle ein s, das kein Vielfaches von p oder q ist."); return; }
+    const pVal = document.getElementById('inputP').value;
+    const qVal = document.getElementById('inputQ').value;
+    const sVal = document.getElementById('inputS').value;
+
+    if (pVal === 'None' || qVal === 'None') {
+        showInlineError('errorP', pVal === 'None' ? 'Bitte wähle eine Primzahl.' : '');
+        showInlineError('errorQ', qVal === 'None' ? 'Bitte wähle eine Primzahl.' : '');
+        return;
+    }
+
+    const p = parseInt(pVal);
+    const q = parseInt(qVal);
+
+    if (p === q) {
+        showInlineError('errorQ', 'p und q müssen verschieden sein!');
+        return;
+    }
+
+    if (sVal === 'None') {
+        showInlineError('errorS', 'Bitte wähle ein Geheimnis s.');
+        return;
+    }
+
+    n = p * q;
+    s = parseInt(sVal);
+
+    if (gcd(s, n) !== 1) {
+        showInlineError('errorS', 's muss teilerfremd zu n sein!');
+        return;
+    }
 
     v = (s * s) % n;
 
-    // Werte-Kasten rechts befüllen
-    document.getElementById('outputP').value = parseInt(document.getElementById('inputP').value);
-    document.getElementById('outputQ').value = parseInt(document.getElementById('inputQ').value);
+    // Werte-Kasten befüllen
+    document.getElementById('outputP').value = p;
+    document.getElementById('outputQ').value = q;
     document.getElementById('outputN').value = n;
-    document.getElementById('outputS').value = honest ? s : '? (unberechenbar)';
+    document.getElementById('outputS').value = honest ? s : '? (unbekannt)';
     document.getElementById('outputV').value = v;
 
     let sSq = s * s;
@@ -116,22 +303,19 @@ function startSetup() {
             `<strong>Öffentliche Werte:</strong> ${O('n')} = ${n}, ${O('v')} = ${v}<br>` +
             `Wobei ${O('v')} = ${P('s')}² mod ${O('n')}<br>` +
             `${O('v')} = ${P(s)}² mod ${O(n)} = ${sSq} mod ${O(n)} = ${O(v)}<br>` +
-            `<span style="color:red;font-weight:bold;">A kennt ${P('s')} nicht! A muss im nächsten Schritt raten.</span>`;
+            `<span style="color:var(--danger);font-weight:bold;">A kennt ${P('s')} nicht! A muss im nächsten Schritt raten.</span>`;
         document.getElementById('commitmentHonest').style.display = 'none';
         document.getElementById('commitmentLying').style.display = 'block';
     }
 
-    document.getElementById('commitmentCard').style.display = 'block';
+    updateProgress(2);
+    showCard('commitmentCard');
 }
 
-function showStep(num) {
-    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-    let stepEl = document.getElementById('step' + num);
-    if(stepEl) stepEl.classList.add('active');
-}
+// --- Commitment (ehrlich) ---
 
 function runCommitment() {
-    if(!n) n = parseInt(document.getElementById('inputN').value);
+    if (!n) n = parseInt(document.getElementById('inputN').value);
     r = Math.floor(Math.random() * (n - 2)) + 1;
 
     x = (r * r) % n;
@@ -145,22 +329,28 @@ function runCommitment() {
 
     document.getElementById('challengeHonest').style.display = 'block';
     document.getElementById('challengeLying').style.display = 'none';
-    document.getElementById('challengeCard').style.display = 'block';
+
+    updateProgress(3);
+    showCard('challengeCard');
 }
+
+// --- Commitment (Lügner) ---
 
 function runLyingCommitment(guess) {
     guessedB = guess;
-    if(!n) n = parseInt(document.getElementById('inputN').value);
+    if (!n) n = parseInt(document.getElementById('inputN').value);
+
+    roundCount++;
+    updateRoundCounter();
 
     if (guess === 0) {
-        // Normal: x = r² mod n, kann nur b=0 beantworten
         r = Math.floor(Math.random() * (n - 2)) + 1;
         x = (r * r) % n;
         preparedY = null;
         document.getElementById('outputR').value = r;
         document.getElementById('outputX').value = x;
         document.getElementById('resStep1').innerHTML =
-            `<span style="color:red;font-weight:bold;">[A lügt, erwartet ${O('b')} = 0]</span><br><br>` +
+            `<span style="color:var(--danger);font-weight:bold;">[A lügt, erwartet ${O('b')} = 0]</span><br><br>` +
             `<strong>Strategie:</strong> Wenn ${O('b')}=0, muss A ein ${O('y')} liefern, sodass <span class="math">${O('y')}² ≡ ${O('x')} (mod ${O('n')})</span>.<br>` +
             `Das ist einfach, wenn A ein echtes ${P('r')} kennt, denn dann ist ${O('y')} = ${P('r')} und es gilt <span class="math">${P('r')}² = ${O('x')}</span>.<br>` +
             `Deshalb berechnet A das Commitment ganz normal:<br><br>` +
@@ -169,12 +359,11 @@ function runLyingCommitment(guess) {
             `A sendet ${O('x')} = <span class="math">${O(x)}</span> an B.<br><br>` +
             `<strong>Problem:</strong> Falls B stattdessen ${O('b')}=1 wählt, bräuchte A <span class="math">${O('y')} = ${P('r')} · ${P('s')}</span> — aber A kennt ${P('s')} nicht!`;
     } else {
-        // Vorbereitet: y zufällig, x = y² · v⁻¹ mod n, kann nur b=1 beantworten
         let y_val = Math.floor(Math.random() * (n - 2)) + 1;
         let vInv = modInverse(v, n);
         if (vInv === null) {
             document.getElementById('resStep1').innerHTML =
-                `<span style="color:red;">Fehler: ${O('v')} hat kein modulares Inverses mod ${O('n')}. Wähle andere Parameter.</span>`;
+                `<span style="color:var(--danger);">Fehler: ${O('v')} hat kein modulares Inverses mod ${O('n')}. Wähle andere Parameter.</span>`;
             return;
         }
         x = (y_val * y_val % n * vInv) % n;
@@ -186,7 +375,7 @@ function runLyingCommitment(guess) {
         let ySqModN = ySq % n;
         let step3 = (ySqModN * vInv) % n;
         document.getElementById('resStep1').innerHTML =
-            `<span style="color:red;font-weight:bold;">[A lügt, erwartet ${O('b')} = 1]</span><br><br>` +
+            `<span style="color:var(--danger);font-weight:bold;">[A lügt, erwartet ${O('b')} = 1]</span><br><br>` +
             `<strong>Strategie:</strong> Wenn ${O('b')}=1, muss A ein ${O('y')} liefern, sodass <span class="math">${O('y')}² ≡ ${O('x')} · ${O('v')} (mod ${O('n')})</span>.<br>` +
             `A berechnet: <span class="math">${O('x')} = ${O('y')}² · ${O('v')}⁻¹ mod ${O('n')}</span><br><br>` +
             `<strong>1.</strong> Wähle ${O('y')} zufällig: ${O('y')} = <span class="math">${O(y_val)}</span><br>` +
@@ -198,30 +387,39 @@ function runLyingCommitment(guess) {
             `Allerdings ist die Berechnung von ${P('r')} aus <span class="math">${O('x')} = ${P('r')}² mod ${O('n')}</span> quasi unmöglich (Faktorisierungsproblem)!`;
     }
 
-    // Im Lügner-Modus: Challenge + Verify direkt für beide b-Werte anzeigen
     document.getElementById('challengeHonest').style.display = 'none';
     document.getElementById('challengeLying').style.display = 'block';
-    document.getElementById('challengeCard').style.display = 'block';
+
+    updateProgress(3);
+    showCard('challengeCard');
 
     document.getElementById('verifyHonest').style.display = 'none';
     document.getElementById('verifyLying').style.display = 'block';
-    document.getElementById('verifyCard').style.display = 'block';
+
+    updateProgress(4);
+    showCard('verifyCard');
 
     runLyingVerifyBoth();
 }
+
+// --- Challenge (ehrlich) ---
 
 function runChallenge(choice) {
     b = choice;
     document.getElementById('resStep2').innerHTML =
         `B hat gewählt: <span class="math">${O('b')} = ${b}</span>`;
 
+    updateProgress(4);
     runResponseAndVerify();
 }
+
+// --- Antwort & Prüfung (ehrlich) ---
 
 function runResponseAndVerify() {
     document.getElementById('verifyHonest').style.display = 'block';
     document.getElementById('verifyLying').style.display = 'none';
-    document.getElementById('verifyCard').style.display = 'block';
+    showCard('verifyCard');
+
     let y;
     let explanation = "";
     let calcCheck = "";
@@ -235,7 +433,8 @@ function runResponseAndVerify() {
         calcCheck = `<strong>Allgemeine Formel:</strong> B prüft, ob <span class="math">${O('y')}² ≡ ${O('x')} (mod ${O('n')})</span><br><br>` +
                     `<strong>Einsetzen:</strong><br>` +
                     `Links: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = ${ySq} mod ${O(n)} = <strong>${check}</strong><br>` +
-                    `Rechts: ${O('x')} = <strong>${O(x)}</strong>`;
+                    `Rechts: ${O('x')} = <strong>${O(x)}</strong><br><br>` +
+                    `<strong>${O('y')}² mod ${O('n')} = ${check} = ${O('x')}</strong>`;
         passed = (check === x);
     } else {
         y = (r * s) % n;
@@ -245,13 +444,14 @@ function runResponseAndVerify() {
         calcCheck = `<strong>Allgemeine Formel:</strong> B prüft, ob <span class="math">${O('y')}² ≡ ${O('x')} · ${O('v')} (mod ${O('n')})</span><br><br>` +
                     `<strong>Einsetzen:</strong><br>` +
                     `Links: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = <strong>${leftSideVal}</strong><br>` +
-                    `Rechts: ${O('x')} · ${O('v')} mod ${O('n')} = ${O(x)} · ${O(v)} mod ${O(n)} = ${x*v} mod ${O(n)} = <strong>${rightSideVal}</strong>`;
+                    `Rechts: ${O('x')} · ${O('v')} mod ${O('n')} = ${O(x)} · ${O(v)} mod ${O(n)} = ${x*v} mod ${O(n)} = <strong>${rightSideVal}</strong><br><br>` +
+                    `<strong>${O('y')}² mod ${O('n')} = ${leftSideVal} = ${O('x')} · ${O('v')} mod ${O('n')}</strong>`;
         passed = (leftSideVal === rightSideVal);
     }
 
-    let resultText = passed ?
-        `<span class="success">✔ Beweis gültig!</span>` :
-        `<span style="color:red">✘ Beweis fehlgeschlagen!</span>`;
+    let resultText = passed
+        ? `<span class="success">✔ Beweis gültig!</span>`
+        : `<span style="color:var(--danger)">✘ Beweis fehlgeschlagen!</span>`;
 
     document.getElementById('verifyLog').innerHTML =
         `<div class="log-entry">` +
@@ -262,8 +462,9 @@ function runResponseAndVerify() {
         `</div>`;
 }
 
+// --- Lügner: beide Fälle ---
+
 function runLyingVerifyBoth() {
-    // Berechne beide Fälle und zeige sie nebeneinander
     let resultB0 = computeLyingCase(0);
     let resultB1 = computeLyingCase(1);
 
@@ -284,7 +485,6 @@ function computeLyingCase(bVal) {
     let y, explanation, calcCheck, passed;
 
     if (guessedB === 0) {
-        // A hat x = r² mod n berechnet (normal)
         if (bVal === 0) {
             y = r;
             explanation = `B fragt nach ${P('r')}. A kennt ${P('r')} und sendet <span class="math">${O('y')} = ${P('r')} = ${P(r)}</span>.`;
@@ -292,7 +492,7 @@ function computeLyingCase(bVal) {
             calcCheck = `Prüfung: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = <strong>${check}</strong>.<br>Erwartet: ${O('x')} = <strong>${O(x)}</strong>.`;
             passed = (check === x);
         } else {
-            y = r; // A hat kein s, sendet r als Verzweiflungsversuch
+            y = r;
             explanation = `B fragt nach ${O('y')} = ${P('r')}·${P('s')}. A kennt ${P('s')} nicht! Sendet <span class="math">${O('y')} = ${P('r')} = ${P(r)}</span> als Verzweiflungsversuch.`;
             let leftSideVal = (y * y) % n;
             let rightSideVal = (x * v) % n;
@@ -302,7 +502,6 @@ function computeLyingCase(bVal) {
             passed = (leftSideVal === rightSideVal);
         }
     } else {
-        // A hat x = y²·v⁻¹ mod n berechnet (vorbereitet für b=1)
         if (bVal === 1) {
             y = preparedY;
             explanation = `B fragt nach ${O('y')} = ${P('r')}·${P('s')}. A hat ${O('y')} vorbereitet und sendet <span class="math">${O('y')} = ${O(y)}</span>.`;
@@ -313,7 +512,7 @@ function computeLyingCase(bVal) {
                         `Rechts: ${O(x)} · ${O(v)} mod ${O(n)} = <strong>${rightSideVal}</strong>`;
             passed = (leftSideVal === rightSideVal);
         } else {
-            y = preparedY; // A hat kein r, sendet preparedY als Verzweiflungsversuch
+            y = preparedY;
             explanation = `B fragt nach ${P('r')}. A hat kein gültiges ${P('r')}! Sendet <span class="math">${O('y')} = ${O(y)}</span> als Verzweiflungsversuch.`;
             let check = (y * y) % n;
             calcCheck = `Prüfung: ${O('y')}² mod ${O('n')} = ${O(y)}² mod ${O(n)} = <strong>${check}</strong>.<br>Erwartet: ${O('x')} = <strong>${O(x)}</strong>.`;
@@ -327,7 +526,7 @@ function computeLyingCase(bVal) {
 function formatVerifyResult(result) {
     let resultText = result.passed
         ? `<span class="success">✔ Beweis gültig!</span>`
-        : `<span style="color:red">✘ Beweis fehlgeschlagen!</span>`;
+        : `<span style="color:var(--danger)">✘ Beweis fehlgeschlagen!</span>`;
 
     return `<div class="log-entry">` +
         `<p>${result.explanation}</p>` +
@@ -337,7 +536,10 @@ function formatVerifyResult(result) {
         `</div>`;
 }
 
+// --- Reset ---
+
 function resetProof() {
+    // Nur Runde zurücksetzen, Setup bleibt
     document.getElementById('resStep1').innerHTML = "";
     document.getElementById('resStep2').innerHTML = "";
     document.getElementById('verifyLog').innerHTML = "";
@@ -345,6 +547,54 @@ function resetProof() {
     document.getElementById('verifyLogB1').innerHTML = "";
     document.getElementById('challengeCard').style.display = 'none';
     document.getElementById('verifyCard').style.display = 'none';
+    document.getElementById('outputR').value = '';
+    document.getElementById('outputX').value = '';
     guessedB = null;
     preparedY = null;
+
+    updateProgress(2);
+    document.getElementById('commitmentCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function fullReset() {
+    // Alles zurücksetzen
+    roundCount = 0;
+    updateRoundCounter();
+    n = undefined;
+    s = undefined;
+    v = undefined;
+    r = undefined;
+    x = undefined;
+    b = undefined;
+    guessedB = null;
+    preparedY = null;
+
+    document.getElementById('resStep1').innerHTML = "";
+    document.getElementById('resStep2').innerHTML = "";
+    document.getElementById('verifyLog').innerHTML = "";
+    document.getElementById('verifyLogB0').innerHTML = "";
+    document.getElementById('verifyLogB1').innerHTML = "";
+    document.getElementById('setupResult').innerHTML = "";
+    document.getElementById('modeResult').innerHTML = "";
+
+    document.getElementById('setupCard').style.display = 'none';
+    document.getElementById('commitmentCard').style.display = 'none';
+    document.getElementById('challengeCard').style.display = 'none';
+    document.getElementById('verifyCard').style.display = 'none';
+
+    document.getElementById('outputP').value = '';
+    document.getElementById('outputQ').value = '';
+    document.getElementById('outputN').value = '';
+    document.getElementById('outputS').value = '';
+    document.getElementById('outputV').value = '';
+    document.getElementById('outputR').value = '';
+    document.getElementById('outputX').value = '';
+
+    document.getElementById('inputP').value = 'None';
+    document.getElementById('inputQ').value = 'None';
+    document.getElementById('inputN').value = '';
+    populateSDropdown(null);
+
+    updateProgress(0);
+    document.getElementById('modeCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

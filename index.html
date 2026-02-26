@@ -11,6 +11,25 @@
     <h1>Fiat-Shamir Zero-Knowledge Proof</h1>
     <p>A (Beweiser:in) möchte B (Prüfer:in) beweisen, dass sie ein Geheimnis <span class="vp">s</span> kennt, ohne es zu verraten.</p>
 
+    <!-- Progress Indicator -->
+    <div class="progress-steps" id="progressSteps">
+        <div class="progress-step active" data-step="0"><span class="step-num">0</span>Modus</div>
+        <div class="progress-step" data-step="1"><span class="step-num">1</span>Setup</div>
+        <div class="progress-step" data-step="2"><span class="step-num">2</span>Commitment</div>
+        <div class="progress-step" data-step="3"><span class="step-num">3</span>Challenge</div>
+        <div class="progress-step" data-step="4"><span class="step-num">4</span>Prüfung</div>
+    </div>
+
+    <!-- Round Counter (lying mode) -->
+    <div class="round-counter" id="roundCounter">
+        <h3>Lügen-Modus: Runden-Statistik</h3>
+        <div class="round-info" id="roundInfo">Runde 0</div>
+        <div class="prob-bar-container">
+            <div class="prob-bar" id="probBar" style="width: 100%;"></div>
+        </div>
+        <div class="prob-label" id="probLabel">Ratewahrscheinlichkeit: 100%</div>
+    </div>
+
     <div class="layout-container">
 
         <div class="main-content">
@@ -22,6 +41,9 @@
                     <button class="btn" onclick="chooseMode(true)">A sagt die Wahrheit</button>
                     <button class="btn btn-danger" onclick="chooseMode(false)">A lügt</button>
                 </div>
+                <p style="margin-top: 1rem;">
+                    <a href="factoring.html" class="nav-link">Zur Faktorisierungs-Demo &rarr;</a>
+                </p>
                 <div id="modeResult" style="margin-top: 1rem;"></div>
             </div>
 
@@ -34,41 +56,53 @@
                 <div class="input-group">
                     <label for="inputP">Wähle Primzahl <span class="vp">p</span>:</label>
                     <select id="inputP">
-                        <option value="None"> None</option>
+                        <option value="None">—</option>
                         <option value="5">5</option>
                         <option value="7">7</option>
                         <option value="11">11</option>
                         <option value="13">13</option>
-                        <option value="15">15</option>
                         <option value="17">17</option>
+                        <option value="19">19</option>
+                        <option value="23">23</option>
+                        <option value="29">29</option>
+                        <option value="31">31</option>
                     </select>
+                    <div class="inline-error" id="errorP"></div>
                 </div>
                 <div class="input-group">
                     <label for="inputQ">Wähle Primzahl <span class="vp">q</span>:</label>
                     <select id="inputQ">
-                        <option value="None"> None</option>
+                        <option value="None">—</option>
                         <option value="5">5</option>
                         <option value="7">7</option>
                         <option value="11">11</option>
                         <option value="13">13</option>
-                        <option value="15">15</option>
                         <option value="17">17</option>
+                        <option value="19">19</option>
+                        <option value="23">23</option>
+                        <option value="29">29</option>
+                        <option value="31">31</option>
                     </select>
+                    <div class="inline-error" id="errorQ"></div>
                 </div>
                 <br>
-                <label>Modulus (<span class="vo">n</span>): <input readonly type="number" id="inputN" value="35"></label>
+                <label>Modulus (<span class="vo">n</span>): <input readonly type="number" id="inputN" value=""></label>
                 <span class="tooltip">ⓘ
                     <span class="tooltiptext">In echten Anwendungen werden die Primzahlen <span class="vp">p</span> und <span class="vp">q</span> deutlich größer gewählt damit es unmöglich wird aus <span class="vo">n</span> wieder <span class="vp">p</span> und <span class="vp">q</span> herauszufinden!</span>
                 </span>
                 <br><br>
 
-                <label>Zufälliges Geheimnis <span class="vp">s</span>: <button class="btn" type="button" id="randomS"> Generiere</button></label>
-                <br><br>
-                <label>Geheimnis (<span class="vp">s</span>): <input type="number" id="inputS" value="4"></label>
-                <span class="tooltip">ⓘ
-                    <span class="tooltiptext">Das Geheimnis <span class="vp">s</span> muss kleiner als <span class="vo">n</span> sein, da alle Rechnungen im Modulo <span class="vo">n</span> stattfinden. Ein größeres <span class="vp">s</span> würde das gleiche Ergebnis wie (<span class="vp">s</span> mod <span class="vo">n</span>) liefern.</span>
-                </span>
-                <br><br>
+                <div class="input-group">
+                    <label for="inputS">Geheimnis <span class="vp">s</span> (teilerfremd zu <span class="vo">n</span>):</label>
+                    <select id="inputS">
+                        <option value="None">— wähle zuerst p und q —</option>
+                    </select>
+                    <span class="tooltip">ⓘ
+                        <span class="tooltiptext">Das Geheimnis <span class="vp">s</span> muss teilerfremd zu <span class="vo">n</span> sein (d.h. <span class="vp">s</span> teilt weder <span class="vp">p</span> noch <span class="vp">q</span>). Nur gültige Werte werden angezeigt.</span>
+                    </span>
+                    <div class="inline-error" id="errorS"></div>
+                </div>
+                <br>
                 <button class="btn" onclick="startSetup()">Setup initialisieren</button>
                 <div id="setupResult" style="margin-top: 1rem;"></div>
             </div>
@@ -78,7 +112,7 @@
                 <h2>2. Commitment (A)</h2>
                 <div id="commitmentHonest">
                     <p>A wählt eine Zufallszahl <span class="math vp">r</span> und sendet <span class="math"><span class="vo">x</span> = <span class="vp">r</span>² mod <span class="vo">n</span></span> an B.</p>
-                    <button class="btn" onclick="runCommitment()">Generiere x senden</button>
+                    <button class="btn" onclick="runCommitment()">Generiere und sende x</button>
                 </div>
                 <div id="commitmentLying" style="display:none;">
                     <p>A kennt <span class="vp">s</span> nicht und muss raten, welches <span class="math vo">b</span> der Verifier wählen wird:</p>
@@ -125,13 +159,16 @@
                     </div>
                 </div>
                 <br>
-                <button class="btn" onclick="resetProof()">Neue Runde starten</button>
+                <div class="btn-group">
+                    <button class="btn" onclick="resetProof()">Neue Runde starten</button>
+                    <button class="btn btn-danger" onclick="fullReset()" style="background: #7f8c8d;">Komplett zurücksetzen</button>
+                </div>
             </div>
 
         </div>
 
         <div class="paper-sheet" id="notesSheet">
-            <h3 style="text-align: center;">Werte</h3>
+            <h3 style="text-align: center; margin-top: 0;">Werte</h3>
             <div class="paper-content">
                 <div class="value-group">
                     <label class="value-private">Primzahl <span class="vp">p</span>: <input readonly type="number" id="outputP" value=""></label>
